@@ -16,6 +16,7 @@ wrongSolution = 0
 inconsistentUnknowns = 0
 emptyQuestion = 0
 emptyUnknowns = 0
+emptyEquations = 0
 mcq = 0
 unsure = 0
 
@@ -51,11 +52,15 @@ for entry in raw1+raw2:
     newEntry['answers'] = answers
 
     if not bad:
-        for u in unknowns:
-            if len(u) != 1:
-                emptyUnknowns +=1
-                bad = True
+        while True:
+            try:
+                unkowns.remove('')
+            except:
                 break
+        if len(unknowns) == 0:
+            emptyUnknowns +=1
+            bad = True
+            break
 
     if not bad:
         for option in answers:
@@ -88,9 +93,14 @@ for entry in raw1+raw2:
                         bad = True
                 except:
                     unsure += 1
-    if newEntry['question'] == "":
-        emptyQuestion += 1
-        bad = True
+    if not bad:
+        if newEntry['question'] == "":
+            emptyQuestion += 1
+            bad = True
+    if not bad:
+        if newEntry['noEquations'] == 0:
+            emptyEquations += 1
+            bad = True
     if bad:
         count += 1
     else:
@@ -100,24 +110,30 @@ for entry in raw3:
     equations = entry['lEquations']
     equations = [e.replace('X','x').replace(' ', '') for e in equations]
     answers = [[float(entry['lSolutions'][0])]]
-
+    try:
+        noUnknowns = len(entry['lQueryVars'])
+        unkowns = entry['lQueryVars']
+    except:
+        noUnknowns = 1
+        unkowns = ['x']
     newEntry = {
         'question' : entry['sQuestion'],
-        'noUnknowns': 1,
-        'unknowns' : ['x'],
-        'noEquations': 1,
+        'noUnknowns': noUnknowns,
+        'unknowns' : unknowns,
+        'noEquations': len(entry['lEquations']),
         'equations' : entry['lEquations'],
         'answers' : answers
     }
 
     newData.append(newEntry)
-print("Original Size: ", len(raw1+raw2+raw3))
+print("Original Size: %d (%d , %d, %d)" % (len(raw1+raw2+raw3), len(raw1), len(raw2), len(raw3)))
 print("Size of New Dataset: ", len(newData))
 print("Bad Examples: ", count)
 print("  Non Numerical: ", nonNum)
 print("    out of which mcq: ", mcq)
-print("  Empty Unkowns: ", emptyUnknowns)
+print("  Inconsistent Unkowns: ", inconsistentUnknowns)
 print("  Empty Question: ", emptyQuestion)
+print("  No Equations: ", emptyEquations)
 print("  Bad Solution: ", wrongSolution)
 print("Unsure of Correctness of Solution: ", unsure)
 
