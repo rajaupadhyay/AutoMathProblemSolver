@@ -137,7 +137,17 @@ for entry in raw3:
         'answers' : answers
     }
 
-    newData.append(newEntry)
+    #LIMIT YOURSELF TO SINGLE VAR/EQ FOR NOW
+    if not bad:
+        if newEntry['noEquations'] != 1 or newEntry['noUnknowns'] != 1:
+            notSingleEquations += 1
+            bad = True
+
+
+    if bad:
+        count += 1
+    else:
+        newData.append(newEntry)
 print("Original Size: %d (%d , %d, %d)" % (len(raw1+raw2+raw3), len(raw1), len(raw2), len(raw3)))
 print("Size of New Dataset: ", len(newData))
 print("Bad Examples: ", count)
