@@ -26,8 +26,6 @@ for datapoint in data:
     words = wordsAndEquations[0]
     eqTemplates = wordsAndEquations[1]
 
-    #words = addBiTriGrams(words)
-
     try:
         i = equations[eqTemplates]
         equationsCount[i] += 1
@@ -42,10 +40,19 @@ for datapoint in data:
 
 relevantData = []
 for datapoint in newData:
-    if equationsCount[datapoint[1]] >= MIN_EXAMPLE:
-        relevantData.append(datapoint)
+    words = datapoint[0]
+    equation = datapoint[1]
+    if equationsCount[equation] >= MIN_EXAMPLE:
+        relevantData.append([words, equation])
+
+relevantWords = getRelevantWords(relevantData, 4)
+relevantData = removeWordsWithLowFreq(relevantData, relevantWords)
+
+for datapoint in relevantData:
+    datapoint[0] = addBiTriGrams(datapoint[0])
 
 vocab = buildVocab(relevantData)
+
 inp = encode(relevantData, vocab)
 
 x = inp[0]
@@ -61,7 +68,8 @@ while(True):
     q = removeEmptiesAndPunctuation(q)
     numbers = findNumbersInWords(q)
     q = removeEmptiesAndPunctuation(q)
-    #q = addBiTriGrams(q)
+    q = replaceIrrelevantWords(q, relevantWords)
+    q = addBiTriGrams(q)
     inp = encodeTest(q, vocab)
     equationIndex = clf.predict([inp])
     eq = equationsList[equationIndex[0]]

@@ -81,7 +81,10 @@ def buildVocab(data):
             except:
                 vocab[word] = i
                 i+= 1
-    vocab[" # "] = i
+    try:
+        a = vocab[" # "]
+    except:
+        vocab[" # "] = i
     return vocab
 
 
@@ -91,7 +94,7 @@ def encode(data, vocab):
     for d in data:
         entry = [0 for l in range(len(vocab))]
         for word in d[0]:
-            entry[vocab[word]] += 1
+            entry[vocab[word]] = 1
         x.append(entry)
     x = scipy.sparse.csr_matrix(x)
     return (x,y)
@@ -100,9 +103,9 @@ def encodeTest(words, vocab):
     entry = [0 for l in range(len(vocab))]
     for word in words:
         try:
-            entry[vocab[word]] += 1
+            entry[vocab[word]] = 1
         except:
-            entry[vocab[" # "]] += 1
+            entry[vocab[" # "]] = 1
     return entry
 
 def addBiTriGrams(words):
@@ -114,3 +117,33 @@ def addBiTriGrams(words):
         biTri.append(words[-2] +" "+ words[-1])
     words += biTri
     return words
+
+def getRelevantWords(data, minLength):
+    tempVocab = {}
+    for d in data:
+        words = d[0]
+        for word in words:
+            try:
+                tempVocab[word] += 1
+            except:
+                tempVocab[word] = 1
+    for word,count in tempVocab.items():
+        if count < minLength:
+            tempVocab[word] = False
+    return tempVocab
+
+def replaceIrrelevantWords(words, tempVocab):
+    for i in range(len(words)):
+        try:
+            count = tempVocab[words[i]]
+            if not count:
+                words[i] = " # "
+        except:
+            words[i] = " # "
+    return words
+
+def removeWordsWithLowFreq(data, tempVocab):
+    for d in data:
+        words = d[0]
+        replaceIrrelevantWords(words, tempVocab)
+    return data
