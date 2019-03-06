@@ -15,7 +15,7 @@ def removeEmptiesAndPunctuation(words):
 
 
 def findNumbersInWords(words):
-    index = 0
+    ind = 0
     numbers = []
     for i in range(len(words)):
         word = words[i]
@@ -24,26 +24,63 @@ def findNumbersInWords(words):
 
         prevNum = None
 
-        try:
-            num = w2n.word_to_num(s)
-        except:
-            num = None
+        couldBeNum=True
+        num = None
 
-        while(num != prevNum):
-            prevNum = num
-            j += 1
+        for letter in word:
+            if letter not in "0123456789.()/*+-":
+                couldBeNum = False
+                break
+
+        if couldBeNum:
             try:
-                s += " " + words[j]
-                num = w2n.word_to_num(s)
+                num = eval(word)
+                num = float(num)
             except:
-                num = prevNum
+                num = None
 
         if num != None:
-            words[i] = "a" + str(index)
-            for k in range(i+1,j):
-                words[k] = ""
-            numbers.append(num)
-            index += 1
+            if num not in numbers:
+                words[i] = "a" + str(ind)
+                numbers.append(num)
+                ind += 1
+            else:
+                tempInd = numbers.index(num)
+                words[i] = "a" + str(tempInd)
+        else:
+            try:
+                num = w2n.word_to_num(s)
+            except:
+                num = None
+
+            while(num != prevNum):
+                prevNum = num
+                j += 1
+                try:
+                    num = None
+                    if words[j] == "point":
+                        s += " " + words[j] + " " + words[j+1]
+                        tempNum = w2n.word_to_num(s)
+                        if tempNum != prevNum:
+                            num = tempNum
+                            j += 1
+                    if num == None:
+                        s += " " + words[j]
+                        num = w2n.word_to_num(s)
+                except:
+                    num = prevNum
+
+            if num != None:
+                if num not in numbers:
+                    words[i] = "a" + str(ind)
+                    numbers.append(num)
+                    ind += 1
+                else:
+                    tempInd = numbers.index(num)
+                    words[i] = "a" + str(tempInd)
+                for k in range(i+1,j):
+                    words[k] = ""
+
 
     return numbers
 
