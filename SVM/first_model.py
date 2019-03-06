@@ -5,14 +5,11 @@ from sklearn import svm
 fp = open('./data/data.json')
 data = json.load(fp)
 
-MIN_EXAMPLE = 2
+MIN_EXAMPLE = 4
 
 equationsCount = []
 equations = {}
 equationsList = []
-
-maxEquationLength = 20
-minNumExamples = 20
 
 counter = 0
 newData = []
