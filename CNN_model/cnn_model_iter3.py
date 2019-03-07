@@ -1,6 +1,6 @@
 '''
 Third iteration of the CNN model to predict the operation required for a question
-Accuracy: 83% (Without)
+Accuracy: 85% (Without Glove)
 '''
 import pandas as pd
 from keras.layers import Input, Dense, Embedding, Conv2D, MaxPool2D
@@ -85,7 +85,7 @@ def retrieve_one_hot_embeddings(questions, word_to_idx):
     return embeddings
 
 
-def CNNLOG(X_train, y_train, X_test, y_test, qstn=None):
+def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     # Create a vocab (word to index)
     vocab_dict = build_vocab(X_train)
 
@@ -187,6 +187,15 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None):
     # print(y_predict)
     print("Operation acc: {}".format(model.evaluate(X_test_embedding_padded,y_test_distribution,verbose=0)[1]))
 
+    if outputDF:
+        output_df = pd.DataFrame()
+        output_df['question'] = pd.Series(X_test)
+        output_df['operator'] = pd.Series(y_test)
+        output_df['predicted_operator'] = pd.Series(y_predict)
+
+        output_df.to_csv('CNN_model_iter3_predictions.csv', sep=',')
+
+
     if qstn:
         qstn_embedding = retrieve_one_hot_embeddings(qstn, vocab_dict)
         qstn_embedding_padded = pad_sequences(qstn_embedding, maxlen=max_length, padding='post')
@@ -195,10 +204,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None):
         # Arg max to get the predicted operator
         y_predict = [index_to_label[np.argmax(i)] for i in y_predict]
 
-
-
     return y_predict
-
 
 
 def main():
