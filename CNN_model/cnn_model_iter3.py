@@ -18,7 +18,8 @@ import pickle
 
 def retrieve_data(flag=0):
     if flag == 0:
-        train_ds = pd.read_csv('data/new_train.csv', sep=',', encoding = "ISO-8859-1")
+        # train_ds = pd.read_csv('data/new_train.csv', sep=',', encoding = "ISO-8859-1")
+        train_ds = pd.read_csv('data/train_synthetic.csv', sep=',', encoding = "ISO-8859-1")
         test_ds = pd.read_csv('data/test.csv', sep=',')
 
         X_train = list(train_ds['question'].values)
@@ -208,7 +209,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
 
 
 def main():
-    flag = 2
+    flag = 0
     X_train, y_train, X_test, y_test = retrieve_data(flag=flag)
 
     input_question = input('Enter your question? ')
