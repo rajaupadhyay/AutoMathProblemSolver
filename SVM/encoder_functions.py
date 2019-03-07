@@ -1,15 +1,16 @@
 from word2number import w2n
 import re
 import scipy
-
-ZERO = 0.01
+from global_params import *
 
 def removeEmptiesAndPunctuation(words):
     words = [word for word in words if word]
 
     for i in range(len(words)):
-        if words[i][-1] in "?!.,;:":
+        if words[i][-1] in "?!.,;:$%":
             words[i] = words[i][:-1]
+        if len(words[i]) > 0 and words[i][0] in "$":
+            words[i] = words[i][1:]
 
     return words
 
@@ -85,17 +86,52 @@ def findNumbersInWords(words):
     return numbers
 
 def createTemplate(numbers, equations, unknowns):
+
     unknown = unknowns[0]
     equationTemplate = equations[0].replace(' ', '').replace(unknown, 'x')
-    numbersInEquation = re.findall(r'-?\d+\.?\d*', equationTemplate)
+
+    charset1a = unknowns + [')', 'x']
+    charset2b = unknowns + ['(', 'x']
+    charset2a = charset1a + [str(i) for i in range(10)] + ['.']
+    charset1b = charset2b + [str(i) for i in range(10)] + ['.']
+    for a in charset1a:
+        for b in charset1b:
+            equationTemplate = equationTemplate.replace(a+b, a+'*'+b)
+    for a in charset2a:
+        for b in charset2b:
+            equationTemplate = equationTemplate.replace(a+b, a+'*'+b)
+
+    numbersInEquation = re.findall(r'-?\d*\.?\d*', equationTemplate)
+    numbersInEquation = list(filter(lambda s : s != '' and s != '-' and s != '-0', numbersInEquation))
+    numbersInEquation.sort(key=(lambda s : len(s)), reverse=True)
+
     for num in numbersInEquation:
         if num[0] == '-':
             numbersInEquation.append(num[1:])
+
+    positiveNumbersInEquation = list(filter(lambda s : s[0] != '-', numbersInEquation))
+    positiveNumbersInEquation.sort(key=(lambda s : len(s)), reverse=True)
+
+    for i in range(len(positiveNumbersInEquation)):
+        num = positiveNumbersInEquation[i]
+        equationTemplate = equationTemplate.replace(num, "b" + str(i))
+        if "bb" + str(i) in equationTemplate:
+            equationTemplate = equationTemplate.replace("bb" + str(i), "b"+str(num))
+
     for i in range(len(numbers)):
         number = numbers[i]
         for num in numbersInEquation:
             if number-float(num) < ZERO and number-float(num) > -ZERO:
-                equationTemplate = equationTemplate.replace(num, 'a'+str(i))
+                prefix = ''
+                if num[0] == '-':
+                    prefix = '-'
+                    num = num[1:]
+                ind = positiveNumbersInEquation.index(num)
+                equationTemplate = equationTemplate.replace(prefix + "b" + str(ind), "a" + str(i))
+
+    for i in range(len(positiveNumbersInEquation)):
+        equationTemplate = equationTemplate.replace("b" + str(i), positiveNumbersInEquation[i])
+
     return equationTemplate
 
 

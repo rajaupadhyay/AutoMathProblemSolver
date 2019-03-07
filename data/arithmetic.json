@@ -9785,7 +9785,7 @@
     {
         "iIndex": 818,
         "lEquations": [
-            "4.9+(0.275000.0*years)=2.5+(0.7*years)"
+            "4.9+(0.275*years)=2.5+(0.7*years)"
         ],
         "lQueryVars": [
             "years"

@@ -87,7 +87,7 @@ for entry in raw1+raw2:
                     for b in charset2b:
                         temp = temp.replace(a+b, a+'*'+b)
                 for i in range(len(option)):
-                    temp = temp.replace(unknowns[i], str(option[i]))
+                    temp = temp.replace(unknowns[i], str(option[i])).replace('^', ';')
                 try:
                     x = eval(temp)
                     if (not x < 0.1) or (not x > -0.1):
@@ -118,13 +118,15 @@ for entry in raw1+raw2:
     else:
         newData.append(newEntry)
 
+
 for entry in raw3:
+    bad = False
     equations = entry['lEquations']
     equations = [e.replace('X','x').replace(' ', '') for e in equations]
     answers = [[float(entry['lSolutions'][0])]]
     try:
         noUnknowns = len(entry['lQueryVars'])
-        unkowns = entry['lQueryVars']
+        unknowns = entry['lQueryVars']
     except:
         noUnknowns = 1
         unknowns = ['x']
@@ -133,15 +135,14 @@ for entry in raw3:
         'noUnknowns': noUnknowns,
         'unknowns' : unknowns,
         'noEquations': len(entry['lEquations']),
-        'equations' : entry['lEquations'],
+        'equations' : equations,
         'answers' : answers
     }
 
     #LIMIT YOURSELF TO SINGLE VAR/EQ FOR NOW
-    if not bad:
-        if newEntry['noEquations'] != 1 or newEntry['noUnknowns'] != 1:
-            notSingleEquations += 1
-            bad = True
+    if newEntry['noEquations'] != 1 or newEntry['noUnknowns'] != 1:
+        notSingleEquations += 1
+        bad = True
 
 
     if bad:
