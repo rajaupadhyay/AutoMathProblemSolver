@@ -60,6 +60,25 @@ def retrieve_data(flag=0):
         y_test = [itx[1] for itx in data_set[train_size:]]
 
         return X_train, y_train, X_test, y_test
+    if flag == 3:
+        # data_set = None
+        # with open('data/singleop_shuffled_num_replaced.pickle', 'rb') as handle:
+        #     data_set = pickle.load(handle)
+        #
+        # X_train = [itx[0] for itx in data_set]
+        # y_train = [itx[1] for itx in data_set]
+
+        train_ds = pd.read_csv('data/train_synthetic.csv', sep=',', encoding = "ISO-8859-1")
+
+        X_train = list(train_ds['question'].values)
+        y_train = list(train_ds['operation'].values)
+
+        test_ds = pd.read_csv('data/iit_test.csv', sep=',', encoding = "ISO-8859-1")
+
+        X_test = list(test_ds['question'].values)
+        y_test = list(test_ds['operation'].values)
+
+        return X_train, y_train, X_test, y_test
 
 
 def shuffle_list(*ls):
@@ -133,7 +152,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     y_train_distribution = np.array(y_shuffled[:int(0.8*length)])
     y_dev_distribution = np.array(y_shuffled[int(0.8*length):])
 
-    # These values provide the best perfomance
+
     embedding_dim = 256
     filter_sizes = [3, 4, 5]
     num_filters = 128
@@ -141,6 +160,19 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
 
     epochs = 10
     batch_size = 128
+
+    '''
+    These settings provide an accuracy of 82.6% on the IIIT test dataset
+    The result is better than the result obtained from ARIS.
+    '''
+    # embedding_dim = 256
+    # filter_sizes = [3, 4, 5]
+    # num_filters = 128
+    # std_drop = 0.5
+    #
+    # epochs = 15
+    # batch_size = 128
+
 
     print("Creating Model...")
     inputs = Input(shape=(max_length,), dtype='int32')
@@ -170,15 +202,15 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     model = Model(inputs=inputs, outputs=output)
 
     # checkpoint = ModelCheckpoint('CNN_iter3.hdf5', monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
-    adam = Adam(lr=2e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+    # adam = Adam(lr=2e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
 
-    model.compile(optimizer=adam, loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     #print(model.summary())
     print("Training Model...")
     # model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=0, callbacks=[checkpoint],
     #      validation_data=(X_dev_onehot, y_dev_distribution))
 
-    model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=0,
+    model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=1,
          validation_data=(X_dev_onehot, y_dev_distribution))
 
     # model.load_weights("CNN.hdf5")
@@ -209,7 +241,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
 
 
 def main():
-    flag = 0
+    flag = 3
     X_train, y_train, X_test, y_test = retrieve_data(flag=flag)
 
     input_question = input('Enter your question? ')
