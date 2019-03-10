@@ -61,7 +61,7 @@ def pairEquivalentEquations(equationsCount, equationsList):
                         if testResults[i][0] == testResults[j][0] and testResults[i][1] == testResults[j][1]:
                             newIndeces[j] = ind
                             newEquationCount[-1] += equationsCount[j]
-                            newEquations[equationsList[i]] = ind
+                            newEquations[equationsList[j]] = ind
 
     print("took: ", time.clock()-startedAt,"s")
     print("Reduced from ", len(equationsList)," equations to ", len(newEquationsList), " equations")
