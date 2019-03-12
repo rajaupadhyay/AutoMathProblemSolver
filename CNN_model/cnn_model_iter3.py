@@ -15,6 +15,12 @@ from collections import OrderedDict
 import numpy as np
 import re
 import pickle
+from keras.models import load_model
+
+def pickle_object(obj, filename):
+    with open(filename+'.pickle', 'wb') as handle:
+        pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 def retrieve_data(flag=0):
     if flag == 0:
@@ -109,6 +115,8 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     # Create a vocab (word to index)
     vocab_dict = build_vocab(X_train)
 
+    pickle_object(vocab_dict, 'vocab_dict')
+
     vocabulary_size = len(vocab_dict)+1
 
     # Create one-hot-vector encodings
@@ -121,6 +129,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     # Number of labels would be just 4: +,-,*,/
     num_of_labels = len(set(y_train))
     labels = list(set(y_train))
+    print(labels)
 
     # Create dict for labels to index
     label_to_index = {o:i for i,o in enumerate(labels)}
@@ -153,25 +162,25 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     y_dev_distribution = np.array(y_shuffled[int(0.8*length):])
 
 
-    embedding_dim = 256
-    filter_sizes = [3, 4, 5]
-    num_filters = 128
-    std_drop = 0.2
-
-    epochs = 10
-    batch_size = 128
+    # embedding_dim = 256
+    # filter_sizes = [3, 4, 5]
+    # num_filters = 128
+    # std_drop = 0.2
+    #
+    # epochs = 10
+    # batch_size = 128
 
     '''
     These settings provide an accuracy of 82.6% on the IIIT test dataset
     The result is better than the result obtained from ARIS.
     '''
-    # embedding_dim = 256
-    # filter_sizes = [3, 4, 5]
-    # num_filters = 128
-    # std_drop = 0.5
-    #
-    # epochs = 15
-    # batch_size = 128
+    embedding_dim = 256
+    filter_sizes = [3, 4, 5]
+    num_filters = 128
+    std_drop = 0.5
+
+    epochs = 15
+    batch_size = 128
 
 
     print("Creating Model...")
@@ -201,7 +210,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
 
     model = Model(inputs=inputs, outputs=output)
 
-    # checkpoint = ModelCheckpoint('CNN_iter3.hdf5', monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
+    checkpoint = ModelCheckpoint('model_flag_0.hdf5', monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
     # adam = Adam(lr=2e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -210,8 +219,14 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     # model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=0, callbacks=[checkpoint],
     #      validation_data=(X_dev_onehot, y_dev_distribution))
 
-    model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=1,
+    model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=1, callbacks=[checkpoint],
          validation_data=(X_dev_onehot, y_dev_distribution))
+
+
+
+    # model.save('model_flag_0.h5')
+    # model = load_model('model_flag_0.hdf5')
+
 
     # model.load_weights("CNN.hdf5")
     y_predict = model.predict(X_test_embedding_padded)
@@ -270,3 +285,11 @@ def main():
 
 
 main()
+
+
+'''
+Flag 0: 1.0
+Flag 1: 0.86
+Flag 2: 0.78
+Flag 3: 0.83
+'''

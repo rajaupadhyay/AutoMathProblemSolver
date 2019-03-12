@@ -1,6 +1,70 @@
 import pandas as pd
 import re
 import random
+import json
+
+json_object_1_f = open('CNN_model/data/MAWPS/SingleOp.json')
+json_object_1 = json.load(json_object_1_f)
+json_object_1_f.close()
+
+json_object_2_f = open('CNN_model/data/MAWPS/AddSub.json')
+json_object_2 = json.load(json_object_2_f)
+json_object_2_f.close()
+
+question = []
+equation = []
+operation = []
+solution = []
+dct = {'*': 'Multiplication', '+': 'Addition', '-': 'Subtraction', '/': 'Division'}
+
+
+for qstn_obj in json_object_1:
+    numOfObj = qstn_obj['lAlignments']
+    if len(numOfObj) == 2:
+        qstn = qstn_obj['sQuestion']
+        eqtn = qstn_obj['lEquations'][0]
+        soln = qstn_obj['lSolutions'][0]
+
+        question.append(qstn)
+        equation.append(eqtn)
+        solution.append(soln)
+
+        operator_in_equation = re.findall(r'[-+\/*]', eqtn)
+        print(operator_in_equation)
+        operation.append(dct[operator_in_equation[0]])
+
+
+for qstn_obj in json_object_1:
+    qstn = qstn_obj['sQuestion']
+    eqtn = qstn_obj['lEquations'][0]
+    soln = qstn_obj['lSolutions'][0]
+
+    quants_in_equation = re.findall(r'\d+.?\d*', eqtn)
+    if len(quants_in_equation) == 2:
+        operator_in_equation = re.findall(r'[-+\/*]', eqtn)
+
+        question.append(qstn)
+        equation.append(eqtn)
+        solution.append(soln)
+
+        operator_in_equation = re.findall(r'[-+\/*]', eqtn)
+        operation.append(dct[operator_in_equation[0]])
+
+
+
+df = pd.DataFrame()
+df['question'] = pd.Series(question)
+df['equation'] = pd.Series(equation)
+df['operation'] = pd.Series(operation)
+df['solution'] = pd.Series(solution)
+
+df.to_csv('MAWPS.csv')
+
+
+
+
+
+
 
 # df = pd.read_csv('singleop_ph.csv', encoding = "ISO-8859-1")
 #
