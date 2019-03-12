@@ -14,11 +14,12 @@ count = 0
 nonNum = 0
 wrongSolution = 0
 inconsistentUnknowns = 0
+numbersOfEquationsNoUnk = 0
+tooManyEq = 0
+moreThanThreeEq = 0
 emptyQuestion = 0
 emptyUnknowns = 0
 emptyEquations = 0
-#Remove when generalising to two or three
-notSingleEquations = 0
 mcq = 0
 unsure = 0
 
@@ -87,7 +88,7 @@ for entry in raw1+raw2:
                     for b in charset2b:
                         temp = temp.replace(a+b, a+'*'+b)
                 for i in range(len(option)):
-                    temp = temp.replace(unknowns[i], str(option[i])).replace('^', ';')
+                    temp = temp.replace(unknowns[i], str(option[i])).replace('^', '^^')
                 try:
                     x = eval(temp)
                     if (not x < 0.1) or (not x > -0.1):
@@ -106,11 +107,13 @@ for entry in raw1+raw2:
             emptyEquations += 1
             bad = True
 
-    #LIMIT YOURSELF TO SINGLE VAR/EQ FOR NOW
-    if not bad:
-        if newEntry['noEquations'] != 1 or newEntry['noUnknowns'] != 1:
-            notSingleEquations += 1
-            bad = True
+    if not bad and newEntry['noUnknowns'] != newEntry['noEquations']:
+        bad = True
+        numbersOfEquationsNoUnk += 1
+
+    if not bad and newEntry['noEquations'] > 3:
+        tooManyEq += 1
+        bad = True
 
 
     if bad:
@@ -124,6 +127,7 @@ for entry in raw3:
     equations = entry['lEquations']
     equations = [e.replace('X','x').replace(' ', '') for e in equations]
     answers = [[float(entry['lSolutions'][0])]]
+    noEquations = len(entry['lEquations'])
     try:
         noUnknowns = len(entry['lQueryVars'])
         unknowns = entry['lQueryVars']
@@ -134,16 +138,18 @@ for entry in raw3:
         'question' : entry['sQuestion'],
         'noUnknowns': noUnknowns,
         'unknowns' : unknowns,
-        'noEquations': len(entry['lEquations']),
+        'noEquations': noEquations,
         'equations' : equations,
         'answers' : answers
     }
 
-    #LIMIT YOURSELF TO SINGLE VAR/EQ FOR NOW
-    if newEntry['noEquations'] != 1 or newEntry['noUnknowns'] != 1:
-        notSingleEquations += 1
+    if noUnknowns != noEquations:
         bad = True
+        numbersOfEquationsNoUnk += 1
 
+    if not bad and noEquations > 3:
+        tooManyEq +=1
+        bad = True
 
     if bad:
         count += 1
@@ -155,9 +161,10 @@ print("Bad Examples: ", count)
 print("  Non Numerical: ", nonNum)
 print("    out of which mcq: ", mcq)
 print("  Inconsistent Unkowns: ", inconsistentUnknowns)
+print("  Number Unkowns != Number of Equations: ", numbersOfEquationsNoUnk)
+print("  >3 Equations: ", tooManyEq)
 print("  Empty Question: ", emptyQuestion)
 print("  No Equations: ", emptyEquations)
-print("  Not Single Unknown/Equation: ", notSingleEquations)
 print("  Bad Solution: ", wrongSolution)
 print("Unsure of Correctness of Solution: ", unsure)
 

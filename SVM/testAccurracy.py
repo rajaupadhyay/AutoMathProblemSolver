@@ -10,26 +10,43 @@ data = json.load(fp)
 fp = open('./data/equations.json')
 equations = json.load(fp)
 
-equationsCount = [0 for i in range(len(equations))]
-
 counter = 0
 newData = []
 
+maxIndex = 0
+
+for i in equations.values():
+    if i > maxIndex:
+        maxIndex = i
+
+equationsList = ['' for i in range(maxIndex+1)]
+for equation in equations:
+    equationsList[equations[equation]] = equation
+
+equationsCount = [0 for i in range(maxIndex+1)]
+
 for datapoint in data:
-    counter += 1
-    words = datapoint['question'].split(' ')
-    words = removeEmptiesAndPunctuation(words)
-    wordsAndEquations = replaceNumbers(words, datapoint['equations'], datapoint['unknowns'])
+    if datapoint['noEquations'] <= MAX_NO_EQUATIONS:
+        counter += 1
+        words = datapoint['question'].split(' ')
+        words = removeEmptiesAndPunctuation(words)
+        wordsAndEquations = replaceNumbers(words, datapoint['equations'], datapoint['unknowns'])
 
-    # words = wordsAndEquations[0]
-    words = addBiTriGrams(words)
-    eqTemplates = wordsAndEquations[1]
-    if len(eqTemplates) <= MAX_EQUATION_LENGTH:
-        i = equations[eqTemplates]
-    else:
+        words = wordsAndEquations[0]
+        numbers = wordsAndEquations[2]
+        words = addBiTriGrams(words)
+        eqTemplates = wordsAndEquations[1]
         i = -1
+        if len(eqTemplates) <= MAX_EQUATION_LENGTH:
+            try:
+                i = equations[eqTemplates]
+            except:
+                maxIndex += 1
+                i = maxIndex
+                equations[eqTemplates] = i
+                equationsCount.append(0)
 
-    newData.append((words, i))
+        newData.append((words, i, datapoint['answers'], numbers))
 
 
 shuffle(newData)
@@ -52,7 +69,7 @@ for datapoint in newData:
     equation = datapoint[1]
     if equation != -1:
         if equationsCount[equation] >= MIN_EXAMPLE:
-            relevantData.append([words, equation])
+            relevantData.append([words, equation, datapoint[2], datapoint[3]])
 
 
 vocab = buildVocab(relevantData)
@@ -69,15 +86,50 @@ clf.fit(x, y)
 count = 0
 for dp in testData:
     q = dp[0]
-    numbers = findNumbersInWords(q)
-    q = removeEmptiesAndPunctuation(q)
-    q = removeEmptiesAndPunctuation(q)
-    numbers = findNumbersInWords(q)
-    q = removeEmptiesAndPunctuation(q)
     inp = encodeTest(q, vocab)
+    numbers = dp[3]
     equationIndex = clf.predict([inp])
+    eq = equationsList[equationIndex[0]]
+    answers = dp[2]
 
-    if equationIndex == dp[1]:
+    for i in range(len(numbers)):
+        eq = eq.replace("a"+str(i), str(numbers[i]))
+    if numbers:
+        i = len(numbers)
+        while 'a' in eq:
+            eq = eq.replace("a"+str(i), str(numbers[-1]))
+            i+=1
+    else:
+        eq = ''
+
+    correct = False
+
+    if eq:
+        for answer in answers:
+            possibleUnknowns = "xyz"
+            permutations = [[[0]],[[0,1],[1,0]],[[0,1,2],[1,0,2],[0,2,1],[1,2,0],[2,1,0],[2,0,1]]]
+            for permutation in permutations[len(answer)-1]:
+                tempEq = eq
+                for i in range(len(answer)):
+                    tempEq = tempEq.replace(possibleUnknowns[permutation[i]], str(answer[i]))
+                tempEq = tempEq.split(';')
+                correctTemp = True
+                for teq in tempEq:
+                    try:
+                        sol = eval('('+ teq.replace('=', ')-(') +')')
+                        if sol > ZERO or sol < -ZERO:
+                            correctTemp = False
+                    except:
+                        correctTemp = False
+
+                correct = correct or correctTemp
+                if correct:
+                    break
+            if correct:
+                break
+
+    if correct:
         count += 1
+
 
 print(count/len(testData))

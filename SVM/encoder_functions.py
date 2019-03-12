@@ -87,8 +87,16 @@ def findNumbersInWords(words):
 
 def createTemplate(numbers, equations, unknowns):
 
-    unknown = unknowns[0]
-    equationTemplate = equations[0].replace(' ', '').replace(unknown, 'x')
+    possibleUnknowns = "xyz"
+    equationTemplate = ''
+    for equation in equations:
+        equationTemplate += equation
+        equationTemplate += ';'
+    equationTemplate = equationTemplate[:-1]
+
+    unknowns.sort(reverse=True)
+    for i in range(len(unknowns)):
+        equationTemplate = equationTemplate.replace(unknowns[i], possibleUnknowns[i])
 
     charset1a = unknowns + [')', 'x']
     charset2b = unknowns + ['(', 'x']
@@ -140,7 +148,7 @@ def replaceNumbers(words, equations, unknowns):
     numbers = findNumbersInWords(words)
     words = removeEmptiesAndPunctuation(words)
     equationTemplate = createTemplate(numbers, equations, unknowns)
-    return (words, equationTemplate)
+    return (words, equationTemplate, numbers)
 
 
 def buildVocab(data):
