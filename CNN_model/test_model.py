@@ -18,12 +18,15 @@ from keras.models import load_model
 
 
 def retrieve_data():
-        train_ds = pd.read_csv('data/train_synthetic.csv', sep=',', encoding = "ISO-8859-1")
+        train_ds = pd.read_csv('CNN_model/data/train_synthetic.csv', sep=',', encoding = "ISO-8859-1")
 
         X_train = list(train_ds['question'].values)
         y_train = list(train_ds['operation'].values)
 
-        test_ds = pd.read_csv('data/iit_test.csv', sep=',', encoding = "ISO-8859-1")
+        # test_ds = pd.read_csv('CNN_model/data/MAWPS/MAWPS.csv', sep=',', encoding = "ISO-8859-1")
+        test_ds = pd.read_csv('CNN_model/data/combination/combined.csv', sep=',', encoding = "ISO-8859-1")
+
+        # test_ds = pd.read_csv('CNN_model/data/reformatted_iit.csv', sep=',', encoding = "ISO-8859-1")
 
         X_test = list(test_ds['question'].values)
         y_test = list(test_ds['operation'].values)
@@ -34,13 +37,13 @@ def retrieve_data():
 def retrieve_one_hot_embeddings(questions, word_to_idx):
     embeddings = []
     for qstn in questions:
-        embeddings.append([word_to_idx[word] for word in qstn.split() if word in word_to_idx])
+        embeddings.append([word_to_idx[word] for word in str(qstn).split() if word in word_to_idx])
     return embeddings
 
 
 def CNNLOG(X_test, y_test, qstn=None, outputDF=False):
     # Create a vocab (word to index)
-    vocab_dict_f = open('vocab_dict.pickle', 'rb')
+    vocab_dict_f = open('CNN_model/vocab_dict.pickle', 'rb')
     vocab_dict = pickle.load(vocab_dict_f)
     vocab_dict_f.close()
 
@@ -68,9 +71,10 @@ def CNNLOG(X_test, y_test, qstn=None, outputDF=False):
     X_test_embedding_padded = pad_sequences(X_test_embedding, maxlen=max_length, padding='post')
 
 
-    model = load_model('model_flag_0.hdf5')
+    model = load_model('CNN_model/cnn_model_compressed.hdf5')
 
     y_predict = model.predict(X_test_embedding_padded)
+    print(y_predict[:5])
     # Arg max to get the predicted operator
     y_predict = [index_to_label[np.argmax(i)] for i in y_predict]
     # print(y_predict)
@@ -99,24 +103,25 @@ def CNNLOG(X_test, y_test, qstn=None, outputDF=False):
 def main():
     X_train, y_train, X_test, y_test = retrieve_data()
 
-    input_question = input('Enter your question? ')
-    quantities = re.findall(r'\d+', input_question)
+    # input_question = input('Enter your question? ')
+    # quantities = re.findall(r'\d+', input_question)
 
-    y_predict = CNNLOG(X_test, y_test, [input_question])[0]
+    y_predict = CNNLOG(X_test, y_test)[0]
 
-    quantities = list(map(int, quantities))
+    # quantities = list(map(int, quantities))
 
-    result = None
-    if y_predict == 'Addition':
-        result = quantities[0] + quantities[1]
-    elif y_predict == 'Multiplication':
-        result = quantities[0] * quantities[1]
-    elif y_predict == 'Division':
-        result = max(quantities) / min(quantities)
-    else:
-        result = max(quantities) - min(quantities)
-
-    print('Result: {}'.format(result))
+    # print(y_predict)
+    # result = None
+    # if y_predict == 'Addition':
+    #     result = quantities[0] + quantities[1]
+    # elif y_predict == 'Multiplication':
+    #     result = quantities[0] * quantities[1]
+    # elif y_predict == 'Division':
+    #     result = max(quantities) / min(quantities)
+    # else:
+    #     result = max(quantities) - min(quantities)
+    #
+    # print('Result: {}'.format(result))
 
 
 main()

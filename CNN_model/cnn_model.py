@@ -10,7 +10,6 @@ import tensorflow as tf
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 
-
 def retrieve_one_hot_embeddings(questions, word_to_idx):
     embeddings = []
     for qstn in questions:
@@ -63,11 +62,11 @@ def calculate_result(operator, quantities):
 
 def user_input():
     input_question = input('Enter your question? ')
-    quantities = re.findall(r'\d+', input_question)
+    quantities = re.findall(r"\d+(?:\.\d+)?", input_question)
 
     predicted_operator = CNN_MODEL([input_question])[0]
 
-    quantities = list(map(int, quantities))
+    quantities = list(map(float, quantities))
 
     result = calculate_result(predicted_operator, quantities)
 
@@ -75,11 +74,11 @@ def user_input():
 
 
 def CNN(input_question):
-    quantities = re.findall(r'\d+', input_question)
+    quantities = re.findall(r"\d+(?:\.\d+)?", input_question)
 
     predicted_operator = CNN_MODEL([input_question])[0]
 
-    quantities = list(map(int, quantities))
+    quantities = list(map(float, quantities))
 
     result = calculate_result(predicted_operator, quantities)
 
