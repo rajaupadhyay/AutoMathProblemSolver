@@ -95,6 +95,12 @@ def createTemplate(numbers, equations, unknowns):
     equationTemplate = equationTemplate[:-1]
 
     unknowns.sort(reverse=True)
+    pre = []
+    for char in possibleUnknowns:
+        if char in unknowns:
+            unknowns.remove(char)
+            pre.append(char)
+    unknowns = pre + unknowns
     for i in range(len(unknowns)):
         equationTemplate = equationTemplate.replace(unknowns[i], possibleUnknowns[i])
 

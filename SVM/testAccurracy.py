@@ -45,6 +45,7 @@ for datapoint in data:
                 i = maxIndex
                 equations[eqTemplates] = i
                 equationsCount.append(0)
+                equationsList.append(eqTemplates)
 
         newData.append((words, i, datapoint['answers'], numbers))
 

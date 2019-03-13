@@ -76,4 +76,11 @@ while(True):
     eq = equationsList[equationIndex[0]]
     for i in range(len(numbers)):
         eq = eq.replace("a"+str(i), str(numbers[i]))
+    if numbers:
+        i = len(numbers)
+        while 'a' in eq:
+            eq = eq.replace("a"+str(i), str(numbers[-1]))
+            i+=1
+    else:
+        eq = 'No numerical data given'
     print(eq)
