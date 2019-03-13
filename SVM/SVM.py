@@ -75,11 +75,11 @@ def train(data):
 
     clf = svm.SVC(gamma='scale', kernel='linear', decision_function_shape='ovo')
     clf.fit(x, y)
-    return lambda x: fitToModel(clf, vocab, x)
+    return lambda x,y: fitToModel(clf, vocab, x,y)
 
 
 
-def fitToModel(clf, vocab, question):
+def fitToModel(clf, vocab, question, ignoreSingleOp):
     q = question.split(" ")
     q = removeEmptiesAndPunctuation(q)
     numbers = findNumbersInWords(q)
@@ -87,7 +87,7 @@ def fitToModel(clf, vocab, question):
     q = addBiTriGrams(q)
     inp = encodeTest(q, vocab)
     equationIndex = clf.predict([inp])
-    if lowPerformingIndices[equationIndex[0]]:
+    if lowPerformingIndices[equationIndex[0]] and ignoreSingleOp:
         return False
     eq = equationsList[equationIndex[0]]
 
