@@ -34,8 +34,7 @@ def train(data):
                 try:
                     i = equations[eqTemplates]
                 except:
-                    maxIndex += 1
-                    i = maxIndex
+                    i = len(equationsList)
                     equations[eqTemplates] = i
                     equationsCount.append(0)
                     equationsList.append(eqTemplates)
@@ -87,8 +86,11 @@ def fitToModel(clf, vocab, question, ignoreSingleOp):
     q = addBiTriGrams(q)
     inp = encodeTest(q, vocab)
     equationIndex = clf.predict([inp])
-    if lowPerformingIndices[equationIndex[0]] and ignoreSingleOp:
-        return False
+    try:
+        if lowPerformingIndices[equationIndex[0]] and ignoreSingleOp:
+            return False
+    except:
+        pass
     eq = equationsList[equationIndex[0]]
 
     for i in range(len(numbers)):

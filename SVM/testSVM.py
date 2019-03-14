@@ -3,6 +3,7 @@ from encoder_functions import *
 from sklearn import svm
 from global_params import *
 from random import shuffle
+from checkSolution import *
 import SVM
 
 fp = open('./data/data.json')
@@ -11,11 +12,20 @@ data = json.load(fp)
 fp = open('./data/equations.json')
 equations = json.load(fp)
 
+for iteration in range(10):
+    twentyFive = int(0.25*len(data))
 
-predict = SVM.train(data)
+    shuffle(data)
+    test = data[:twentyFive]
+    train = data[twentyFive:]
 
-print(predict("John has five apples and three pears. How many pears does he have?", False))
-print(predict("John has five apples and three pears. How many pears does he have?", True))
-print(predict("The product of two numbers is 15 and their sum is 14. What are the two numbers?", True))
-print(predict("Not a question.", False))
-print(predict("Not a question.", True))
+    predict = SVM.train(train)
+
+    right = 0
+
+    for datapoint in test:
+        predicted = predict(datapoint['question'], False)
+        if checkSolution(predicted, datapoint['answers']):
+            right += 1
+
+    print(right/twentyFive)
