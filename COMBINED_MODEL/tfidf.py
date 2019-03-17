@@ -142,18 +142,6 @@ class TFIDF:
         self.tf = TfidfVectorizer(analyzer='word', ngram_range=(1, 4), min_df=0, max_df=self.max_df)
         self.tfidf_matrix = self.tf.fit_transform(corpus)
 
-
-    # def replace_nouns(self, corpus):
-    #     for j in range(len(corpus)):
-    #         pos = pos_tag(word_tokenize(corpus[j]))
-    #         for i in range(len(pos)):
-    #             if pos[i][0].lower() in MATH_TERMS:
-    #                 continue
-    #             if pos[i][1] == 'NN' or pos[i][1] == 'NNS':
-    #                 corpus[j] = str.replace(corpus[j], pos[i][0], 'CN')
-    #             elif pos[i][1] == 'NNP' or pos[i][1] == 'NNPS':
-    #                 corpus[j] = str.replace(corpus[j], pos[i][0], 'PN')
-    #     return corpus
     def replace_nouns(self, corpus, window_size = 3):
         for j in range(len(corpus)):
             count = window_size + 1

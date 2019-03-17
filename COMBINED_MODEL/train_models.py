@@ -156,12 +156,13 @@ def train_all_models():
 
     # TRAIN SVM
     print('Training SVM')
-    svmFitFunction, svmFitFunctionWithAdvice = train(training_ds)
+    svmFitFunction = None
+    # svmFitFunction, svmFitFunctionWithAdvice = train(training_ds)
 
     # # TRAIN CNN MODEL
     # train_CNN(X_train, y_train, X_test, y_test)
 
-    tfidf_mdl = TFIDF(0.6, 5, 25)
+    tfidf_mdl = TFIDF(0.6, 5, 1.0)
     tfidf_mdl.fit(tfidfX_train, tfidfy_train)
 
 

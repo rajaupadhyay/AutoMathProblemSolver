@@ -77,7 +77,7 @@ def loadAndTestCNNModel(testDS, vocab_dict, model):
 
 
 avgAccuracy = 0
-for itx in range(1):
+for itx in range(5):
 
     svmFitFunction, tfidf_mdl, testGlobal = train_all_models()
     totalQs = len(testGlobal)
@@ -89,6 +89,7 @@ for itx in range(1):
     TFIDF_attempts = 0
     TFIDF_CORRECT = 0
     chcker = 0
+    correctionCheck = False
     for questionObject in testGlobal:
         if chcker%500 == 0:
             print('Current itx {}/{}'.format(chcker, totalQs))
@@ -110,9 +111,9 @@ for itx in range(1):
             if correctionCheck:
                 TFIDF_CORRECT += 1
             TFIDF_attempts += 1
-        else:
-            res = svmFitFunction(question, False)
-            correctionCheck = checkSolution(res, answer)
+        # else:
+        #     res = svmFitFunction(question, False)
+        #     correctionCheck = checkSolution(res, answer)
 
 
         if correctionCheck:
