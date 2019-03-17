@@ -14,13 +14,17 @@ from keras.models import load_model
 
 def retrieve_one_hot_embeddings(questions, word_to_idx):
     embeddings = []
-    for qstn in questions:
-        embeddings.append([word_to_idx[word] for word in qstn.split() if word in word_to_idx])
+    if isinstance(questions, list):
+        for qstn in questions:
+            embeddings.append([word_to_idx[word] for word in qstn.split() if word in word_to_idx])
+    else:
+        embeddings.append([word_to_idx[word] for word in questions.split() if word in word_to_idx])
+
     return embeddings
 
 
 def SNI_model(input_phrase):
-    vocab_dict_f = open('SNI/vocab_dict_for_sni.pickle', 'rb')
+    vocab_dict_f = open('SNI/vocab_dict.pickle', 'rb')
     vocab_dict = pickle.load(vocab_dict_f)
     vocab_dict_f.close()
 
@@ -74,11 +78,11 @@ def SNI(question):
 
     for phrase in range(len(phrase_list)):
         sig = SNI_model(phrase_list[phrase])
-        if sig < 0:
+        if sig[0] < 0.5:
             idx_change = indices_to_change[phrase]
             question_tokens[idx_change] = 'num'
 
     updated_qstn = ' '.join(question_tokens)
     return updated_qstn
 
-print(SNI("What is the sum of the 2 numbers, 4 and 3?"))
+print(SNI(""))

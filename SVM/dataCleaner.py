@@ -3,9 +3,9 @@ from math import *
 
 newData = []
 
-fp1 = open('../data/dev_cleaned.json')
-fp2 = open('../data/eval_cleaned.json')
-fp3 = open('../data/arithmetic.json')
+fp1 = open('data/dev_cleaned.json')
+fp2 = open('data/eval_cleaned.json')
+fp3 = open('data/arithmetic.json')
 raw1 = json.load(fp1)
 raw2 = json.load(fp2)
 raw3 = json.load(fp3)
@@ -168,5 +168,5 @@ print("  No Equations: ", emptyEquations)
 print("  Bad Solution: ", wrongSolution)
 print("Unsure of Correctness of Solution: ", unsure)
 
-fpout = open('./data/data.json', 'w')
+fpout = open('SVM/data/data.json', 'w')
 json.dump(newData, fpout, indent=2)

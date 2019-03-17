@@ -23,10 +23,10 @@ from encoder_functions import *
 
 
 # ### POS Tagging
-# NN	  noun, singular 'desk'  
-# NNS	  noun plural	'desks'  
-# NNP	  proper noun, singular	'Harrison'  
-# NNPS  proper noun, plural	'Americans'  
+# NN	  noun, singular 'desk'
+# NNS	  noun plural	'desks'
+# NNP	  proper noun, singular	'Harrison'
+# NNPS  proper noun, plural	'Americans'
 
 # In[4]:
 
@@ -62,8 +62,8 @@ MATH_TERMS = [
     'more',
     'longer',
     'shorter',
-    'taller', 
-    'heavier', 
+    'taller',
+    'heavier',
     'less',
     'lost',
     'minus',
@@ -83,7 +83,7 @@ MATH_TERMS = [
     'each' ,
     'group',
     'every',
-    'factor', 
+    'factor',
     'multiplied',
     'of',
     'product',
@@ -107,16 +107,16 @@ MATH_TERMS = [
     'divide',
     'division',
     'equal',
-    'pieces', 
+    'pieces',
     'split',
     'average',
     # Equality Words
-    'is', 
-    'are', 
-    'was', 
-    'were', 
+    'is',
+    'are',
+    'was',
+    'were',
     'will',
-    'gives', 
+    'gives',
     'yields',
     'sold',
     'cost',
@@ -129,17 +129,17 @@ MATH_TERMS = [
 
 
 class TDIDF:
-    
+
     def __init__(self, threshold, num_consider):
         self.threshold = threshold
         self.num_consider = num_consider
-        
-        
+
+
     def get_tfidf_matrix(self, corpus):
         self.tf = TfidfVectorizer(analyzer='word', ngram_range=(1, 3), min_df=0, stop_words='english')
         self.tfidf_matrix = self.tf.fit_transform(corpus)
-    
-    
+
+
     def replace_nouns(self, corpus):
         for j in range(len(corpus)):
             pos = pos_tag(word_tokenize(corpus[j]))
@@ -152,20 +152,20 @@ class TDIDF:
                     corpus[j] = str.replace(corpus[j], pos[i][0], 'PN')
         return corpus
 
-    
+
     # Find documents similar to a document that is not in the tfidf_matrix
     def find_similar(self, new_doc):
         cosine_similarities = linear_kernel(new_doc[0], self.tfidf_matrix).flatten()
         related_docs_indices = [i for i in cosine_similarities.argsort()[::-1]]
         return [(index, cosine_similarities[index]) for index in related_docs_indices][0:self.num_consider]
-        
-    
+
+
     def fit(self, X_train, Y_train):
         self.X_train = X_train
         self.Y_train = Y_train
         self.get_tfidf_matrix(X_train)
-    
-    
+
+
     def predict(self, X_test):
         y_pred = []
         non_sim_index = []
@@ -195,7 +195,7 @@ class TDIDF:
                 y_pred.append(-1)
         X_left = [X_test[i] for i in non_sim_index]
         return y_pred, X_left
-    
+
 
 
 # In[46]:
@@ -279,11 +279,11 @@ def run():
     X_test, y_test = test['question'].values, test['operation'].values
     print(len(X_train))
     print(len(X_test))
-    
+
     model = TDIDF(threshold=0.0, num_consider=20)
     model.fit(X_train, y_train)
     y_pred, _ = model.predict(X_test)
-    
+
     print('Accuracy Score: ', accuracy_score(y_pred, y_test))
 
 
@@ -291,4 +291,3 @@ def run():
 
 
 run()
-

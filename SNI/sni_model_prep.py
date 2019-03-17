@@ -9,6 +9,7 @@ from collections import OrderedDict
 import re
 from keras.callbacks import ModelCheckpoint
 import pickle
+from keras.models import load_model
 
 def pickle_object(obj, filename):
     with open(filename+'.pickle', 'wb') as handle:
@@ -18,8 +19,10 @@ def pickle_object(obj, filename):
 
 def load_data():
     print ('Loading data...')
-    df = pd.read_csv('SNI/sni_dataset.csv', sep=',', encoding = "ISO-8859-1")
+    # df = pd.read_csv('SNI/sni_dataset.csv', sep=',', encoding = "ISO-8859-1")
+    # df = pd.read_csv('SNI/SNI_new_data/sni_dataset_12.csv', sep=',', encoding = "ISO-8859-1")
 
+    df = pd.read_csv('SNI/SNI_new_data/sni_dataset_just_new.csv', sep=',', encoding = "ISO-8859-1")
     df = df.reindex(np.random.permutation(df.index))
 
     phrases = list(df['phrase'].values)
@@ -56,10 +59,14 @@ def retrieve_one_hot_embeddings(questions, word_to_idx):
 
 
 
-def SNI_model(X_train, y_train, X_test, y_test):
-    vocab_dict_f = open('SNI/vocab_dict_for_sni.pickle', 'rb')
-    vocab_dict = pickle.load(vocab_dict_f)
-    vocab_dict_f.close()
+def SNI_model(X_train, y_train, X_test, y_test, save_model=False):
+    # vocab_dict_f = open('SNI/vocab_dict.pickle', 'rb')
+    # vocab_dict = pickle.load(vocab_dict_f)
+    # vocab_dict_f.close()
+
+    vocab_dict = build_vocab(X_train)
+
+    # pickle_object(vocab_dict, 'vocab_dict')
 
     vocabulary_size = len(vocab_dict)+1
 
@@ -92,24 +99,27 @@ def SNI_model(X_train, y_train, X_test, y_test):
     model.add(Dropout(0.5))
     # model.add(LSTM(output_dim=256, activation='sigmoid', inner_activation='hard_sigmoid'))
     # model.add(Dropout(0.5))
-    model.add(Dense(1, activation='sigmoid'))
+    model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
 
-
-    checkpoint = ModelCheckpoint('SNI_model.hdf5', monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
+    if save_model:
+        checkpoint = ModelCheckpoint('SNI_model.hdf5', monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
 
 
     print ('Compiling...')
     model.compile(loss='binary_crossentropy',
-                  optimizer='sgd',
+                  optimizer='adam',
                   metrics=['accuracy'])
 
-    hist = model.fit(X_train_onehot, y_train_distribution, batch_size=64, nb_epoch=10, validation_split = 0.1, verbose = 1, callbacks=[checkpoint])
+    if save_model:
+        hist = model.fit(X_train_onehot, y_train_distribution, batch_size=64, nb_epoch=10, validation_split = 0.1, verbose = 0, callbacks=[checkpoint])
+    else:
+        hist = model.fit(X_train_onehot, y_train_distribution, batch_size=64, nb_epoch=10, validation_split = 0.1, verbose = 0)
 
     y_test = np.array(y_test)
-    print(len(y_test))
+
     res = model.predict(X_test_embedding_padded)
-    print(len(res))
-    score, acc = model.evaluate(X_test_embedding_padded, y_test, batch_size=1)
+
+    score, acc = model.evaluate(X_test_embedding_padded, y_test, batch_size=1, verbose=0)
 
     print('Test score:', score)
     print('Test accuracy:', acc)

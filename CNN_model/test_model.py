@@ -25,11 +25,13 @@ def retrieve_data():
 
         # test_ds = pd.read_csv('CNN_model/data/MAWPS/MAWPS.csv', sep=',', encoding = "ISO-8859-1")
         test_ds = pd.read_csv('CNN_model/data/combination/combined.csv', sep=',', encoding = "ISO-8859-1")
+        # test_ds = pd.read_csv('onlySingleOpDolphin.csv', sep=',', encoding = "ISO-8859-1")
 
         # test_ds = pd.read_csv('CNN_model/data/reformatted_iit.csv', sep=',', encoding = "ISO-8859-1")
 
         X_test = list(test_ds['question'].values)
         y_test = list(test_ds['operation'].values)
+        # solns = list(test_ds['answers'].values)
 
         return X_train, y_train, X_test, y_test
 
@@ -103,10 +105,44 @@ def CNNLOG(X_test, y_test, qstn=None, outputDF=False):
 def main():
     X_train, y_train, X_test, y_test = retrieve_data()
 
+    y_predict = CNNLOG(X_test, y_test)
+    print(y_predict)
+    print(len(y_predict))
+
+    # ops = {'Addition': '+', 'Subtraction': '-', 'Division': '/', 'Multiplication': '*'}
+
+
+    # correct = 0
+    # zippedQstnsAndSolns = list(zip(X_test, solns, y_predict))
+    # for qstn, soln, op in zippedQstnsAndSolns:
+    #     quantities = re.findall(r"\d+(?:\.\d+)?", qstn)
+    #
+    #     quantities = list(map(float, quantities))
+    #
+    #     result = None
+    #     if op == 'Addition':
+    #         result = quantities[0] + quantities[1]
+    #     elif op == 'Multiplication':
+    #         result = quantities[0] * quantities[1]
+    #     elif op == 'Division':
+    #         try:
+    #             result = max(quantities) / min(quantities)
+    #         except:
+    #             result = 0
+    #     else:
+    #         result = max(quantities) - min(quantities)
+    #
+    #
+    #     if result == soln:
+    #         correct += 1
+    #
+    #
+    # print('Accuracy ', correct/len(solns))
+
+
+
     # input_question = input('Enter your question? ')
     # quantities = re.findall(r'\d+', input_question)
-
-    y_predict = CNNLOG(X_test, y_test)[0]
 
     # quantities = list(map(int, quantities))
 

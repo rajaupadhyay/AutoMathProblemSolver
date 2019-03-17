@@ -73,7 +73,7 @@ def user_input():
     print('Result: {}'.format(result))
 
 
-def CNN(input_question):
+def CNN(input_question, return_operator):
     quantities = re.findall(r"\d+(?:\.\d+)?", input_question)
 
     predicted_operator = CNN_MODEL([input_question])[0]
@@ -82,7 +82,10 @@ def CNN(input_question):
 
     result = calculate_result(predicted_operator, quantities)
 
-    return result
+    if return_operator:
+        return result, predicted_operator
+    else:
+        return result
 
 
-user_input()
+# user_input()

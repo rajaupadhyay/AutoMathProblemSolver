@@ -74,12 +74,14 @@ def retrieve_data(flag=0):
         # X_train = [itx[0] for itx in data_set]
         # y_train = [itx[1] for itx in data_set]
 
-        train_ds = pd.read_csv('data/train_synthetic.csv', sep=',', encoding = "ISO-8859-1")
+        train_ds = pd.read_csv('CNN_model/data/train_synthetic.csv', sep=',', encoding = "ISO-8859-1")
 
         X_train = list(train_ds['question'].values)
         y_train = list(train_ds['operation'].values)
 
-        test_ds = pd.read_csv('data/iit_test.csv', sep=',', encoding = "ISO-8859-1")
+
+        # test_ds = pd.read_csv('CNN_model/data/iit_test.csv', sep=',', encoding = "ISO-8859-1")
+        test_ds = pd.read_csv('combinedWithAllColumns.csv', sep=',', encoding = "ISO-8859-1")
 
         X_test = list(test_ds['question'].values)
         y_test = list(test_ds['operation'].values)
@@ -107,7 +109,7 @@ def build_vocab(questions):
 def retrieve_one_hot_embeddings(questions, word_to_idx):
     embeddings = []
     for qstn in questions:
-        embeddings.append([word_to_idx[word] for word in qstn.split() if word in word_to_idx])
+        embeddings.append([word_to_idx[word] for word in str(qstn).split() if word in word_to_idx])
     return embeddings
 
 
@@ -115,7 +117,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     # Create a vocab (word to index)
     vocab_dict = build_vocab(X_train)
 
-    pickle_object(vocab_dict, 'vocab_dict')
+    # pickle_object(vocab_dict, 'vocab_dict')
 
     vocabulary_size = len(vocab_dict)+1
 
@@ -210,7 +212,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
 
     model = Model(inputs=inputs, outputs=output)
 
-    checkpoint = ModelCheckpoint('model_flag_0.hdf5', monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
+    # checkpoint = ModelCheckpoint('model_flag_0.hdf5', monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
     # adam = Adam(lr=2e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -219,7 +221,7 @@ def CNNLOG(X_train, y_train, X_test, y_test, qstn=None, outputDF=False):
     # model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=0, callbacks=[checkpoint],
     #      validation_data=(X_dev_onehot, y_dev_distribution))
 
-    model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=1, callbacks=[checkpoint],
+    model.fit(X_train_onehot, y_train_distribution, batch_size=batch_size, epochs=epochs, verbose=1,
          validation_data=(X_dev_onehot, y_dev_distribution))
 
 
@@ -259,29 +261,29 @@ def main():
     flag = 3
     X_train, y_train, X_test, y_test = retrieve_data(flag=flag)
 
-    input_question = input('Enter your question? ')
-    quantities = re.findall(r'\d+', input_question)
+    # input_question = input('Enter your question? ')
+    # quantities = re.findall(r'\d+', input_question)
 
     if flag == 2:
         for qtn in quantities:
             input_question = input_question.replace(qtn, 'num')
 
 
-    y_predict = CNNLOG(X_train, y_train, X_test, y_test, [input_question])[0]
+    y_predict = CNNLOG(X_train, y_train, X_test, y_test)[0]
 
-    quantities = list(map(int, quantities))
-
-    result = None
-    if y_predict == 'Addition':
-        result = quantities[0] + quantities[1]
-    elif y_predict == 'Multiplication':
-        result = quantities[0] * quantities[1]
-    elif y_predict == 'Division':
-        result = max(quantities) / min(quantities)
-    else:
-        result = max(quantities) - min(quantities)
-
-    print('Result: {}'.format(result))
+    # quantities = list(map(int, quantities))
+    #
+    # result = None
+    # if y_predict == 'Addition':
+    #     result = quantities[0] + quantities[1]
+    # elif y_predict == 'Multiplication':
+    #     result = quantities[0] * quantities[1]
+    # elif y_predict == 'Division':
+    #     result = max(quantities) / min(quantities)
+    # else:
+    #     result = max(quantities) - min(quantities)
+    #
+    # print('Result: {}'.format(result))
 
 
 main()
