@@ -119,35 +119,9 @@ for itx in range(5):
         if correctionCheck:
             TOTALCORRECT += 1
 
-        # equation = None
-        #
-        # if isSingle:
-        #     predictedOperator = loadAndTestCNNModel([question], vocab_dict, CNN_model)
-        #     if predictedOperator in res:
-        #         equation = res
-        #     else:
-        #         try:
-        #             # equation = svmFitFunctionWithAdvice(question, predictedOperator)
-        #             for op in "+-/*":
-        #                 res = res.replace(op, predictedOperator)
-        #             equation = res
-        #         except:
-        #             equation = res
-        #
-        #     questionsCNN.append(question)
-        #     solutionsForQsCNN.append(answer[0])
-        #     predictedOperatorCNN.append(predictedOperator)
-        #     equation = returnEquationsAndSolutions([question], [predictedOperator])[0]
-        # else:
-        #     equation = res
-        #
-        # if equation == -1:
-        #     equation = svmFitFunction(question, False)
-
 
     print('Iteration ', itx+1)
-    # print('Total Correct', TOTALCORRECT)
-    # print('Testing on {} samples'.format(len(testGlobal)))
+
 
     avgAccuracy += TOTALCORRECT/len(testGlobal)
     print('Overall accuracy:', TOTALCORRECT/len(testGlobal))

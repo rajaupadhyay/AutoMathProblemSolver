@@ -213,7 +213,7 @@ class TFIDF:
                 # y_pred.append(-1)
         X_left = [X_test[i] for i in non_sim_index]
 
-        fp = open('data/equations.json')
+        fp = open('final_combined/data/equations.json')
         equation_dict = json.load(fp)
 
         y_pred = [key for x in y_pred for key, value in equation_dict.items() if value == x]

@@ -2,12 +2,16 @@ import json
 from helper_functions import *
 from sklearn import svm
 from random import shuffle
+import pickle
 
+def pickle_object(obj, filename):
+    with open(filename+'.pickle', 'wb') as handle:
+        pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-fp = open('data/equations.json')
+fp = open('final_combined/data/equations.json')
 equations = json.load(fp)
 
-fp = open('data/equationsList.json')
+fp = open('final_combined/data/equationsList.json')
 equationsList = json.load(fp)
 
 # fp = open('COMBINED_MODEL/svm_data/lowPerformingIndices.json')
@@ -67,6 +71,7 @@ def train(data):
 
     vocab = buildVocab(relevantData)
 
+
     inp = encode(relevantData, vocab)
 
     x = inp[0]
@@ -74,6 +79,13 @@ def train(data):
 
     clf = svm.SVC(gamma='scale', kernel='linear', decision_function_shape='ovo')
     clf.fit(x, y)
+
+
+    pickle_object(vocab, 'svm_vocab')
+
+    pickle_object(clf, 'svm_clf')
+
+
     f1 = lambda x,y: fitToModel(clf, vocab, x,y)
     f2 = lambda x,y: guidedFitToModel(clf, vocab, x, y)
     return (f1, f2)
@@ -99,14 +111,6 @@ def fitToModel(clf, vocab, question, requireSingleOp):
             i+=1
     else:
         eq = ''
-
-    # if requireSingleOp:
-    #     singleOp = False
-    #     try:
-    #         singleOp = lowPerformingIndices[equationIndex[0]]
-    #     except:
-    #         pass
-    #     return (eq, singleOp)
 
     return eq
 
