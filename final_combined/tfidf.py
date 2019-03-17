@@ -204,10 +204,10 @@ class TFIDF:
                     similar_question = similar_question.split(" ")
                     similar_question = removeEmptiesAndPunctuation(similar_question)
                     numbers_in_similar_question = findNumbersInWords(similar_question)
-                    # if len(numbers) == len(numbers_in_similar_question):
-                    template_found = True
-                    y_pred.append(self.Y_train[index])
-                    break
+                    if len(numbers) == len(numbers_in_similar_question):
+                        template_found = True
+                        y_pred.append(self.Y_train[index])
+                        break
             if not template_found:
                 non_sim_index.append(i)
                 # y_pred.append(-1)

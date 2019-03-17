@@ -125,6 +125,13 @@ def createTfidfTrainAndTest(training_ds):
 
 
 def obtain_train_and_test():
+    # Shuffle and split the dataset
+    shuffle(dolphin18K_ds)
+
+    # Training: 75%, Testing 25%
+    training_ds = dolphin18K_ds[:int(0.75*TOTAL_QUESTIONS)]
+    testing_ds = dolphin18K_ds[int(0.75*TOTAL_QUESTIONS):]
+
     train_synthetic = pd.read_csv('final_combined/data/train_synthetic.csv', sep=',')
     tfidfX_train, tfidfy_train = createTfidfTrainAndTest(train_synthetic)
 
@@ -145,7 +152,7 @@ svm_vocab = pickle.load(svm_vocab_f)
 svm_vocab_f.close()
 
 
-tfidf_mdl = TFIDF(0.6, 5, 1.0)
+tfidf_mdl = TFIDF(0.55, 10, 30)
 tfidf_mdl.fit(tfidfX_train, tfidfy_train)
 
 

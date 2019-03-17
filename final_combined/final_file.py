@@ -204,10 +204,10 @@ class TFIDF:
                     similar_question = similar_question.split(" ")
                     similar_question = removeEmptiesAndPunctuation(similar_question)
                     numbers_in_similar_question = findNumbersInWords(similar_question)
-                    # if len(numbers) == len(numbers_in_similar_question):
-                    template_found = True
-                    y_pred.append(self.Y_train[index])
-                    break
+                    if len(numbers) == len(numbers_in_similar_question):
+                        template_found = True
+                        y_pred.append(self.Y_train[index])
+                        break
             if not template_found:
                 non_sim_index.append(i)
                 # y_pred.append(-1)
@@ -335,6 +335,12 @@ def createTfidfTrainAndTest(training_ds):
 
 
 def obtain_train_and_test():
+    # Shuffle and split the dataset
+    shuffle(dolphin18K_ds)
+
+    # Training: 75%, Testing 25%
+    training_ds = dolphin18K_ds[:int(0.75*TOTAL_QUESTIONS)]
+    testing_ds = dolphin18K_ds[int(0.75*TOTAL_QUESTIONS):]
     train_synthetic = pd.read_csv('final_combined/data/train_synthetic.csv', sep=',')
     tfidfX_train, tfidfy_train = createTfidfTrainAndTest(train_synthetic)
 
@@ -355,7 +361,7 @@ svm_vocab = pickle.load(svm_vocab_f)
 svm_vocab_f.close()
 
 
-tfidf_mdl = TFIDF(0.6, 5, 1.0)
+tfidf_mdl = TFIDF(0.55, 10, 30)
 tfidf_mdl.fit(tfidfX_train, tfidfy_train)
 
 
@@ -364,7 +370,8 @@ svmFitFunction = fitToModel
 testGlobal = testing_ds
 
 avgAccuracy = 0
-for itx in range(5):
+num_iterations = 5
+for itx in range(num_iterations):
 
     totalQs = len(testGlobal)
     print('Testing on {} samples'.format(totalQs))
@@ -408,4 +415,4 @@ for itx in range(5):
     print('TFIDF Attempted {} questions'.format(TFIDF_attempts))
     print('TFIDF accuracy ', TFIDF_CORRECT/TFIDF_attempts)
 
-print('Average Accuracy over 5 runs', avgAccuracy/5)
+print('Average Accuracy over', num_iterations, 'runs', avgAccuracy/num_iterations)
